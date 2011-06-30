@@ -1,0 +1,65 @@
+<script src="http://js.pusherapp.com/1.8/pusher.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  // Enable pusher logging - don't include this in production
+  Pusher.log = function(message) {
+    if (window.console && window.console.log) window.console.log(message);
+  };
+
+  // Flash fallback logging - don't include this in production
+  WEB_SOCKET_DEBUG = true;
+
+  var pusher = new Pusher('f4807381c58e65e9c7d3');
+  var channel = pusher.subscribe('products');
+
+  channel.bind('product-create', function(data) {
+    // alert(data["name"] + " was created");
+     $('#status').append(data['name'] + " created<br/>").effect("highlight", {}, 3000);
+  });
+
+  channel.bind('product-update', function(data) {
+    $('#status').append(data['name'] + " updated<br/>").effect("highlight", {}, 3000);
+    $('#product_'+data['id']+" .name").html(data['name']);
+    $('#product_'+data['id']+" .price").html(data['price']);
+    $('#product_'+data['id']).effect("highlight", {}, 3000);
+  });
+
+  channel.bind('product-destroy', function(data) {
+    // alert(data["name"] + " was destroyed");
+    $('#status').append(data['name'] + " destroyed<br/>").effect("highlight", {}, 3000);
+    $('#product_'+data['id']).fadeOut();      
+  });
+
+</script>
+
+<div id="status"></div>
+
+
+
+
+<h1>Listing products</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Price</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @products.each do |product| %>
+  <tr id='<%= dom_id product %>' >
+    <td class='name'><%= product.name %></td>
+    <td><%= product.description %></td>
+    <td class='price'><%= product.price %></td>
+    <td><%= link_to 'Show', product %></td>
+    <td><%= link_to 'Edit', edit_product_path(product) %></td>
+    <td><%= link_to 'Destroy', product, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Product', new_product_path %>
